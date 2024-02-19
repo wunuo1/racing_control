@@ -45,7 +45,7 @@ RacingControlNode::RacingControlNode(const std::string& node_name,const rclcpp::
   this->get_parameter<float>("confidence_threshold", confidence_threshold_);
 
   point_subscriber_ =
-    this->create_subscription<geometry_msgs::msg::PointStamped>(
+    this->create_subscription<ai_msgs::msg::PerceptionTargets>(
       "racing_track_center_detection",
       10,
       std::bind(&RacingControlNode::subscription_callback_point,
@@ -84,7 +84,7 @@ RacingControlNode::~RacingControlNode(){
   }
 }
 
-void RacingControlNode::subscription_callback_point(const geometry_msgs::msg::PointStamped::SharedPtr point_msg){
+void RacingControlNode::subscription_callback_point(const ai_msgs::msg::PerceptionTargets::SharedPtr point_msg){
   {
     std::unique_lock<std::mutex> lock(point_target_mutex_);
     point_queue_.push(point_msg);
@@ -113,7 +113,7 @@ void RacingControlNode::MessageProcess(){
     if (!point_queue_.empty() && sub_target_ == false){
       auto point_msg = point_queue_.top();
       lock.unlock();
-      LineFollowing(point_msg);
+      LineFollowing(point_msg->targets[0]);
       lock.lock();
       point_queue_.pop();
     }
@@ -124,13 +124,13 @@ void RacingControlNode::MessageProcess(){
       targets_queue_.pop();
       lock.unlock();
       if(targets_msg->targets.size() == 0){
-        LineFollowing(point_msg);
+        LineFollowing(point_msg->targets[0]);
       } else {
           for(const auto &target : targets_msg->targets){
             if(target.type == "construction_cone"){
               int bottom = target.rois[0].rect.y_offset + target.rois[0].rect.height;
               if (bottom < bottom_threshold_){
-                LineFollowing(point_msg);
+                LineFollowing(point_msg->targets[0]);
               } else {
                 if(target.rois[0].confidence > confidence_threshold_){
                   ObstaclesAvoiding(target);
@@ -144,9 +144,9 @@ void RacingControlNode::MessageProcess(){
   }
 }
 
-void RacingControlNode::LineFollowing(const geometry_msgs::msg::PointStamped::SharedPtr point_msg){
-  int x = int(point_msg->point.x);
-  int y = int(point_msg->point.y);
+void RacingControlNode::LineFollowing(const ai_msgs::msg::Target &point_msg){
+  int x = int(point_msg.points[0].point[0].x);
+  int y = int(point_msg.points[0].point[0].y);
   float temp = x - 320.0;
   if ((-20 < x ) && ( x < 0)) {
     temp = -20;

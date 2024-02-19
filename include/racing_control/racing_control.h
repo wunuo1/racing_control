@@ -26,22 +26,22 @@
 
 
 
-struct compare_point {
-  bool operator()(const geometry_msgs::msg::PointStamped::SharedPtr f1,
-                  const geometry_msgs::msg::PointStamped::SharedPtr f2) {
-    return ((f1->header.stamp.sec > f2->header.stamp.sec) ||
-            ((f1->header.stamp.sec == f2->header.stamp.sec) &&
-             (f1->header.stamp.nanosec > f2->header.stamp.nanosec)));
-  }
-};
-struct compare_target {
-  bool operator()(const ai_msgs::msg::PerceptionTargets::SharedPtr m1,
-                  const ai_msgs::msg::PerceptionTargets::SharedPtr m2) {
-    return ((m1->header.stamp.sec > m2->header.stamp.sec) ||
-            ((m1->header.stamp.sec == m2->header.stamp.sec) &&
-             (m1->header.stamp.nanosec > m2->header.stamp.nanosec)));
-  }
-};
+// struct compare_point {
+//   bool operator()(const geometry_msgs::msg::PointStamped::SharedPtr f1,
+//                   const geometry_msgs::msg::PointStamped::SharedPtr f2) {
+//     return ((f1->header.stamp.sec > f2->header.stamp.sec) ||
+//             ((f1->header.stamp.sec == f2->header.stamp.sec) &&
+//              (f1->header.stamp.nanosec > f2->header.stamp.nanosec)));
+//   }
+// };
+// struct compare_target {
+//   bool operator()(const ai_msgs::msg::PerceptionTargets::SharedPtr m1,
+//                   const ai_msgs::msg::PerceptionTargets::SharedPtr m2) {
+//     return ((m1->header.stamp.sec > m2->header.stamp.sec) ||
+//             ((m1->header.stamp.sec == m2->header.stamp.sec) &&
+//              (m1->header.stamp.nanosec > m2->header.stamp.nanosec)));
+//   }
+// };
 
 class RacingControlNode : public rclcpp::Node{
 public:
@@ -49,26 +49,24 @@ public:
                         const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
   ~RacingControlNode() override;
 private:
-    rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr point_subscriber_;
+    rclcpp::Subscription<ai_msgs::msg::PerceptionTargets>::SharedPtr point_subscriber_;
 
     rclcpp::Subscription<ai_msgs::msg::PerceptionTargets>::SharedPtr target_subscriber_;
 
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
 
-    void subscription_callback_point(const geometry_msgs::msg::PointStamped::SharedPtr point_msg);
+    void subscription_callback_point(const ai_msgs::msg::PerceptionTargets::SharedPtr point_msg);
     void subscription_callback_target(const ai_msgs::msg::PerceptionTargets::SharedPtr targets_msg);
-    void LineFollowing(const geometry_msgs::msg::PointStamped::SharedPtr point_msg);
+    void LineFollowing(const ai_msgs::msg::Target &point_msg);
     void ObstaclesAvoiding(const ai_msgs::msg::Target &target);
     void MessageProcess(void);
     std::string pub_control_topic_ = "cmd_vel";
 
-    std::priority_queue<geometry_msgs::msg::PointStamped::SharedPtr,
-                      std::vector<geometry_msgs::msg::PointStamped::SharedPtr>,
-                      compare_point>
+    std::priority_queue<ai_msgs::msg::PerceptionTargets::SharedPtr,
+                      std::vector<ai_msgs::msg::PerceptionTargets::SharedPtr>>
     point_queue_;
     std::priority_queue<ai_msgs::msg::PerceptionTargets::SharedPtr,
-                      std::vector<ai_msgs::msg::PerceptionTargets::SharedPtr>,
-                      compare_target>
+                      std::vector<ai_msgs::msg::PerceptionTargets::SharedPtr>>
     targets_queue_;
 
     std::mutex point_target_mutex_;
