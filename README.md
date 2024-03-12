@@ -46,7 +46,7 @@ ros2 launch racing_control racing_control.launch.py avoid_angular_ratio:=0.2 avo
 ### Sub话题
 | 名称                          | 消息类型                                                     | 说明                                                   |
 | ----------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| racing_track_center_detection      | geometry_msgs/msg/PointStamped        | 接收赛道中点的位置消息                  |
+| racing_track_center_detection      | ai_msgs::msg::PerceptionTargets        | 接收赛道中点的位置消息                  |
 | racing_obstacle_detection      | ai_msgs/msgs/PerceptionTargets        | 接收检测到的障碍物的位置信息                 |
 
 ## 参数
