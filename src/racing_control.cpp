@@ -109,6 +109,13 @@ void RacingControlNode::subscription_callback_target(const ai_msgs::msg::Percept
 
 void RacingControlNode::MessageProcess(){
   while(process_stop_ == false){
+    this->get_parameter<float>("avoid_angular_ratio", avoid_angular_ratio_);
+    this->get_parameter<float>("avoid_linear_speed", avoid_linear_speed_);
+    this->get_parameter<int>("bottom_threshold", bottom_threshold_);
+    this->get_parameter<float>("follow_linear_speed", follow_linear_speed_);
+    this->get_parameter<float>("follow_angular_ratio", follow_angular_ratio_);
+    this->get_parameter<float>("confidence_threshold", confidence_threshold_);
+
     std::unique_lock<std::mutex> lock(point_target_mutex_);
     if (!point_queue_.empty() && sub_target_ == false){
       auto point_msg = point_queue_.top();
