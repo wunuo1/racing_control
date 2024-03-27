@@ -36,7 +36,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(ai_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-
+find_package(hbm_img_msgs REQUIRED)
 add_executable(racing_control src/racing_control.cpp)
 
 ament_target_dependencies(
@@ -45,6 +45,7 @@ ament_target_dependencies(
   std_msgs
   geometry_msgs
   ai_msgs
+  hbm_img_msgs
 )
 
 target_include_directories(racing_control PUBLIC
